@@ -1,9 +1,10 @@
-package conf
+package controllers
 
 import "github.com/spf13/viper"
 
 type Config struct {
-	TokenApi string `mapstructure:"TOKEN_API"`
+	Token          string `mapstructure:"TELEGRAM_TOKEN"`
+	DatabaseSource string `mapstructure:"DBSOURCE"`
 }
 
 func LoadConfig(path string) (config Config, err error) {

@@ -7,12 +7,10 @@ import (
 	"log"
 
 	tgbot "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/iKayrat/telegram-reminder/controllers"
+	"github.com/spf13/viper"
 
 	_ "github.com/lib/pq"
 )
-
-const chatID = 118469838
 
 var numericKeyboard = tgbot.NewReplyKeyboard(
 	tgbot.NewKeyboardButtonRow(
@@ -30,13 +28,13 @@ var numericKeyboard = tgbot.NewReplyKeyboard(
 func main() {
 	ctx := context.Background()
 
-	conf, err := controllers.LoadConfig(".")
+	conf, err := LoadConfig(".")
 	if err != nil {
 		log.Panic("cannot load env", err)
 	}
 	log.Println(conf)
 
-	db := controllers.DBconnection(conf.DatabaseSource)
+	db := DBconnection(conf.DatabaseSource)
 	if err := db.Ping(); err != nil {
 		log.Panic(err)
 	}
@@ -123,4 +121,35 @@ func main() {
 		// 	log.Panic(err)
 		// }
 	}
+}
+
+func DBconnection(dbsource string) *sql.DB {
+	// connStr := "user=pg dbname=pqgotest sslmode=verify-full"
+	db, err := sql.Open("postgres", dbsource)
+	if err != nil {
+		log.Fatal(err)
+		return nil
+	}
+
+	return db
+}
+
+type Config struct {
+	Token          string `mapstructure:"TELEGRAM_TOKEN"`
+	DatabaseSource string `mapstructure:"DBSOURCE"`
+}
+
+func LoadConfig(path string) (config Config, err error) {
+	viper.AddConfigPath(path)
+	viper.SetConfigName("config")
+	viper.SetConfigType("env")
+
+	viper.AutomaticEnv()
+
+	err = viper.ReadInConfig()
+	if err != nil {
+		return
+	}
+	err = viper.Unmarshal(&config)
+	return
 }

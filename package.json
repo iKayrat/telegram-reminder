@@ -1,0 +1,8 @@
+{
+    "name": "telegram-bot",
+    "version": "0.0.1",
+    "description": "A simple Go Telegram Bot.",
+    "scripts": {
+      "start": "go run main.go"
+    }
+  }
